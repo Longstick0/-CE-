@@ -10,4 +10,6 @@ public interface FoodStoreApi {
     @GET("RestrtSanittnGradStus?KEY=e9d760bbea604ab0900bcd74d4f95be6&pSize=250&Type=json&SIGUN_CD=41390")
     Call<FoodStoreApiResult> getStoreByGeo();
 
+    //https://openapi.gg.go.kr/RestrtSanittnGradStus?KEY=e9d760bbea604ab0900bcd74d4f95be6&pSize=250&Type=json&SIGUN_CD=41390
+
 }

@@ -13,7 +13,9 @@ import com.naver.maps.map.MapView;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.OnMapReadyCallback;
 import com.naver.maps.map.UiSettings;
+import com.naver.maps.map.overlay.InfoWindow;
 import com.naver.maps.map.overlay.Marker;
+import com.naver.maps.map.overlay.Overlay;
 import com.naver.maps.map.overlay.OverlayImage;
 import com.naver.maps.map.util.FusedLocationSource;
 
@@ -29,7 +31,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, Overlay.OnClickListener {
 
     private static final int ACCESS_LOCATION_PERMISSION_REQUEST_CODE = 100;
 
@@ -37,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private NaverMap naverMap;
     private List<Marker> markerList = new ArrayList<Marker>();
     private FusedLocationSource locationSource;
+    private InfoWindow infoWindow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -65,6 +68,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng mapCenter = naverMap.getCameraPosition().target;
         fetchFoodStore("e9d760bbea604ab0900bcd74d4f95be6", 250, "json", 41390);
 
+        infoWindow = new InfoWindow();
+        //마커 클릭 시 표시되는 내용
+        infoWindow.setAdapter(new InfoWindow.DefaultTextAdapter(this) {
+            @NonNull
+            @Override
+            public CharSequence getText(@NonNull InfoWindow infoWindow) {
+                Marker marker = infoWindow.getMarker();
+                Row row = (Row) marker.getTag();
+                //현재는 row.getAppontDe 데이터가 출력되도록 설정되었음
+                return row.getAppontDe();
+            }
+        });
 
         CameraPosition cameraPosition = new CameraPosition(
                 new LatLng(37.377, 126.805),  // 위치 지정
@@ -108,18 +123,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (result.getRestrtSanittnGradStus() != null && rows.size() > 0) {
             for (Row rowStore : rows) {
                 Marker marker = new Marker();
+                marker.setTag(rowStore);
+
                 marker.setPosition(new LatLng(Double.parseDouble(rowStore.getRefineWgs84Lat()), Double.parseDouble(rowStore.getRefineWgs84Logt())));
                 if ("매우우수".equalsIgnoreCase(rowStore.getAppontGrad())) {
                     marker.setIcon(OverlayImage.fromResource(R.drawable.marker_greena));
                 } else if ("우수".equalsIgnoreCase(rowStore.getAppontGrad())) {
-                    marker.setIcon(OverlayImage.fromResource(R.drawable.marker_greena));
+                    marker.setIcon(OverlayImage.fromResource(R.drawable.marker_greena)); //노란색
                 } else if ("보통".equalsIgnoreCase(rowStore.getAppontGrad())) {
-                    marker.setIcon(OverlayImage.fromResource(R.drawable.marker_greena));
+                    marker.setIcon(OverlayImage.fromResource(R.drawable.marker_greena)); //빨간
                 } else {
                     marker.setIcon(OverlayImage.fromResource(R.drawable.marker_greena));
                 }
                 marker.setAnchor(new PointF(0.5f, 0f));
                 marker.setMap(naverMap);
+                marker.setOnClickListener(this);
                 markerList.add(marker);
             }
         }
@@ -143,5 +161,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
             markerList.clear();
         }
+    }
+
+    @Override
+    public boolean onClick(@NonNull Overlay overlay) {
+        Marker marker = (Marker) overlay;
+        infoWindow.open(marker);
+
+        return false;
     }
 }
