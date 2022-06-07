@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
@@ -50,13 +51,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Overlay.OnClickLis
         mapView!!.getMapAsync(this)
     }
 
+    // 검색 버튼 표시
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
         menuInflater.inflate(R.menu.activity_search, menu)
 
         return true
     }
-
+    // 검색 버튼 클릭시 검색창으로 이동
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.search -> {
@@ -69,9 +71,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Overlay.OnClickLis
             }
         }
     }
-
-
-
 
     //최초 실행 시 설정값
     override fun onMapReady(naverMap: NaverMap) {
@@ -89,8 +88,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Overlay.OnClickLis
             override fun getText(infoWindow: InfoWindow): CharSequence {
                 val marker = infoWindow.marker
                 val row = marker!!.tag as Row?
-                // 정보창에 음식점이름, 주소(도로명x)표시
-                return row!!.entrpsNm.toString() + "\n" + row!!.refineLotnoAddr.toString()
+                // 정보창에 음식점이름, 주소(도로명x), 위생등급 표시
+                return row!!.entrpsNm.toString() + "\n" + row!!.refineLotnoAddr.toString() +"\n" + "위생등급: " + row!!.appontGrad.toString()
             }
         }
 
@@ -196,13 +195,18 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Overlay.OnClickLis
         naverMap!!.setOnMapClickListener { pointF: PointF, latLng: LatLng ->
             infoWindow!!.close()
         }
+        // 정보창 클릭시 SearchActivity로 넘어감
+        infoWindow?.setOnClickListener(Overlay.OnClickListener {
+            var intent = Intent(applicationContext, SearchActivity::class.java)
+            startActivity(intent)
+            true
+        })
         // 마커를 클릭하면 정보창 open
         // 마커를 다시 클릭하면 정보창 close
         val marker = overlay as Marker
-        if (marker.infoWindow == null){
+        if (marker.infoWindow == null) {
             infoWindow!!.open(marker)
-        }
-        else {
+        } else {
             infoWindow!!.close()
         }
         return true
