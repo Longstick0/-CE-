@@ -17,6 +17,7 @@ public class RestaurantAdminDisp {
     @Override
     public String toString() {
         return "상호명 : " + prcscitypoint_bsshnm + "\n" +
+                "처분 내용 : " + viltcn + "\n" +
                 "주소 : " + addr + "\n";
     }
 
