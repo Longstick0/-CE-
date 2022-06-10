@@ -47,12 +47,11 @@ public class SearchActivity2 extends AppCompatActivity {
         addListToAdapter(adapter, marketList);
 
         EditText editTextFilter = (EditText)findViewById(R.id.editTextFilter);
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Toast.makeText(SearchActivity2.this, + position +" " + id + "번 선택! ", Toast.LENGTH_LONG).show();
-            }
-        });
+//        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+//            }
+//        });
         editTextFilter.addTextChangedListener(new TextWatcher() {
             @Override
             public void afterTextChanged(Editable edit) {
