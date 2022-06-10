@@ -51,27 +51,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Overlay.OnClickLis
         mapView!!.getMapAsync(this)
     }
 
-    // 검색 버튼 표시
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        super.onCreateOptionsMenu(menu)
-        menuInflater.inflate(R.menu.activity_search, menu)
-
-        return true
-    }
-    // 검색 버튼 클릭시 검색창으로 이동
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            R.id.search -> {
-                var intent = Intent(applicationContext, SearchActivity::class.java)
-                startActivity(intent)
-                return true
-            }
-            else -> {
-                return super.onOptionsItemSelected(item)
-            }
-        }
-    }
-
     //최초 실행 시 설정값
     override fun onMapReady(naverMap: NaverMap) {
         this.naverMap = naverMap
@@ -89,6 +68,27 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Overlay.OnClickLis
                 val marker = infoWindow.marker
                 val row = marker!!.tag as Row?
                 // 정보창에 음식점이름, 주소(도로명x), 위생등급 표시
+
+                infoWindow?.setOnClickListener(Overlay.OnClickListener {
+                    var intent = Intent(applicationContext, InfoActivity::class.java)
+                    var text1 = row!!.entrpsNm
+                    var text2 = row!!.refineRoadnmAddr
+                    var text3 = row!!.appontGrad
+                    var text4 = row!!.appontDe
+                    var text5 = row!!.appontInstDivNm
+                    var text6 = row!!.refineLotnoAddr
+
+                    intent.putExtra("text1", text1)
+                    intent.putExtra("text2", text2)
+                    intent.putExtra("text3", text3)
+                    intent.putExtra("text4", text4)
+                    intent.putExtra("text5", text5)
+                    intent.putExtra("text6", text6)
+
+                    startActivity(intent)
+                    true
+                })
+
                 return row!!.entrpsNm.toString() + "\n" + row!!.refineLotnoAddr.toString() +"\n" + "위생등급: " + row!!.appontGrad.toString()
             }
         }
@@ -195,12 +195,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Overlay.OnClickLis
         naverMap!!.setOnMapClickListener { pointF: PointF, latLng: LatLng ->
             infoWindow!!.close()
         }
-        // 정보창 클릭시 SearchActivity로 넘어감
-        infoWindow?.setOnClickListener(Overlay.OnClickListener {
-            var intent = Intent(applicationContext, SearchActivity::class.java)
-            startActivity(intent)
-            true
-        })
         // 마커를 클릭하면 정보창 open
         // 마커를 다시 클릭하면 정보창 close
         val marker = overlay as Marker
