@@ -1,8 +1,16 @@
 package kr.ac.kpu.foodtukorea;
 
 
+import android.content.Intent;
 import android.graphics.PointF;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +30,8 @@ import com.naver.maps.map.util.FusedLocationSource;
 import java.util.ArrayList;
 import java.util.List;
 
+import kr.ac.kpu.foodtukorea.databaseConfig.DatabaseHelper;
+import kr.ac.kpu.foodtukorea.databaseConfig.RestaurantAdminDisp;
 import kr.ac.kpu.foodtukorea.domain.FoodStoreApiResult;
 import kr.ac.kpu.foodtukorea.domain.RestrtSanittnGradStu;
 import kr.ac.kpu.foodtukorea.domain.Row;
@@ -44,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -52,6 +63,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected (MenuItem item)
+    {
+
+        switch(item.getItemId())
+        {
+            case R.id.menu1:
+                Intent intent = new Intent(getApplicationContext(), SearchActivity2.class);
+                startActivity(intent);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     //최초 실행 시 설정값
@@ -70,14 +103,34 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         infoWindow = new InfoWindow();
         //마커 클릭 시 표시되는 내용
-        infoWindow.setAdapter(new InfoWindow.DefaultTextAdapter(this) {
+        infoWindow.setAdapter(new InfoWindow.DefaultViewAdapter(this) {
             @NonNull
             @Override
-            public CharSequence getText(@NonNull InfoWindow infoWindow) {
+            protected View getContentView(@NonNull InfoWindow infoWindow) {
                 Marker marker = infoWindow.getMarker();
-                Row row = (Row) marker.getTag();
-                //현재는 row.getAppontDe 데이터가 출력되도록 설정되었음
-                return row.getAppontDe();
+                Row store = (Row) marker.getTag();
+                View view = View.inflate(MainActivity.this, R.layout.view_info_window, null);
+                ((TextView) view.findViewById(R.id.name)).setText(store.getAppontDe());
+                //if문 안에 equalsIgnoreCase는 == 비교와 같다고 생각하시면 될 거 같아요
+                //즉 아래 코드는 store.getAppontGrad와 "plenty"가 같다면 아래
+                //((TextView) view.findViewById(R.id.stock)).setText("a");가 실행됩니다.
+                //저희 프로그램은 이미 마커의 색으로 식품등급을 판별할 수 있기에 따로 if문에 따라 view에 보여지는 내용이
+                //변경될 필요가 없을 것 같아요.
+                if ("plenty".equalsIgnoreCase(store.getAppontGrad())) {
+                    ((TextView) view.findViewById(R.id.stock)).setText("a");
+                } else if ("some".equalsIgnoreCase(store.getAppontInstDivNm())) {
+                    ((TextView) view.findViewById(R.id.stock)).setText("b");
+                } else if ("few".equalsIgnoreCase(store.getRefineWgs84Logt())) {
+                    ((TextView) view.findViewById(R.id.stock)).setText("c");
+                } else if ("empty".equalsIgnoreCase(store.getRefineWgs84Logt())) {
+                    ((TextView) view.findViewById(R.id.stock)).setText("d");
+                } else if ("break".equalsIgnoreCase(store.getRefineWgs84Lat())) {
+                    ((TextView) view.findViewById(R.id.stock)).setText("e");
+                } else {
+                    ((TextView) view.findViewById(R.id.stock)).setText(null);
+                }
+                ((TextView) view.findViewById(R.id.time)).setText("f " + store.getRefineWgs84Lat());
+                return view;
             }
         });
 
